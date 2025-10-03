@@ -1,10 +1,7 @@
 --- *mini.bracketed* Go forward/backward with square brackets
---- *MiniBracketed*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Configurable Lua functions to go forward/backward to a certain target.
 ---   Each function can be customized with:
@@ -32,40 +29,23 @@
 ---   function):
 ---
 ---   `Target`                           `Mappings`         `Lua function`
----
----   Buffer.......................... `[B` `[b` `]b` `]B` .... |MiniBracketed.buffer()|
----
----   Comment block................... `[C` `[c` `]c` `]C` .... |MiniBracketed.comment()|
----
----   Conflict marker................. `[X` `[x` `]x` `]X` .... |MiniBracketed.conflict()|
----
----   Diagnostic...................... `[D` `[d` `]d` `]D` .... |MiniBracketed.diagnostic()|
----
----   File on disk.................... `[F` `[f` `]f` `]F` .... |MiniBracketed.file()|
----
----   Indent change................... `[I` `[i` `]i` `]I` .... |MiniBracketed.indent()|
----
----   Jump from |jumplist|
----   inside current buffer........... `[J` `[j` `]j` `]J` .... |MiniBracketed.jump()|
----
----   Location from |location-list|..... `[L` `[l` `]l` `]L` .... |MiniBracketed.location()|
----
----   Old files....................... `[O` `[o` `]o` `]O` .... |MiniBracketed.oldfile()|
----
----   Quickfix entry from |Quickfix|.... `[Q` `[q` `]q` `]Q` .... |MiniBracketed.quickfix()|
----
----   Tree-sitter node and parents.... `[T` `[t` `]t` `]T` .... |MiniBracketed.treesitter()|
----
----   Undo states from specially
----   tracked linear history.......... `[U` `[u` `]u` `]U` .... |MiniBracketed.undo()|
----
----   Window in current tab........... `[W` `[w` `]w` `]W` .... |MiniBracketed.window()|
----
----   Yank selection replacing
----   latest put region............... `[Y` `[y` `]y` `]Y` .... |MiniBracketed.yank()|
+---   Buffer ......................... `[B` `[b` `]b` `]B` .... |MiniBracketed.buffer()|
+---   Comment block .................. `[C` `[c` `]c` `]C` .... |MiniBracketed.comment()|
+---   Conflict marker ................ `[X` `[x` `]x` `]X` .... |MiniBracketed.conflict()|
+---   Diagnostic ..................... `[D` `[d` `]d` `]D` .... |MiniBracketed.diagnostic()|
+---   File on disk ................... `[F` `[f` `]f` `]F` .... |MiniBracketed.file()|
+---   Indent change .................. `[I` `[i` `]i` `]I` .... |MiniBracketed.indent()|
+---   Jump inside current buffer ..... `[J` `[j` `]j` `]J` .... |MiniBracketed.jump()|
+---   Location from |location-list| .... `[L` `[l` `]l` `]L` .... |MiniBracketed.location()|
+---   Old files ...................... `[O` `[o` `]o` `]O` .... |MiniBracketed.oldfile()|
+---   Quickfix entry from |Quickfix| ... `[Q` `[q` `]q` `]Q` .... |MiniBracketed.quickfix()|
+---   Tree-sitter node and parents ... `[T` `[t` `]t` `]T` .... |MiniBracketed.treesitter()|
+---   Undo from linear history ....... `[U` `[u` `]u` `]U` .... |MiniBracketed.undo()|
+---   Window in current tab .......... `[W` `[w` `]w` `]W` .... |MiniBracketed.window()|
+---   Yank entry over put region ..... `[Y` `[y` `]y` `]Y` .... |MiniBracketed.yank()|
 ---
 --- Notes:
---- - The `undo` target remaps |u| and |<C-R>| keys to register undo state
+--- - The `undo` target remaps |u| and |CTRL-R| keys to register undo state
 ---   after undo and redo respectively. If this conflicts with your setup,
 ---   either disable `undo` target or make your remaps after calling
 ---   |MiniBracketed.setup()|. To use `undo` target, remap your undo/redo keys
@@ -85,12 +65,12 @@
 ---
 --- # Comparisons ~
 ---
---- - 'tpope/vim-unimpaired':
+--- - [tpope/vim-unimpaired](https://github.com/tpope/vim-unimpaired):
 ---     - Supports buffer, conflict, file, location, and quickfix targets mostly
 ---       via built-in commands (like |:bprevious|, etc.) without configuration.
 ---     - Supports files from argument list and tags. This module does not.
 ---     - Doesn't support most other this module's targets (comment, indent, ...).
---- - 'mini.indentscope':
+--- - |mini.indentscope|:
 ---     - Target |MiniBracketed.indent()| target can go to "first" and "last"
 ---       indent change. It also can go not only to line with smaller indent,
 ---       but also bigger or different one.
@@ -105,6 +85,7 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniBracketed
 
 ---@diagnostic disable:luadoc-miss-type-name
 ---@alias __bracketed_direction string One of "first", "backward", "forward", "last".
@@ -144,9 +125,7 @@ MiniBracketed.setup = function(config)
 end
 
 --stylua: ignore
---- Module config
----
---- Default values:
+--- Defaults ~
 ---@eval return MiniDoc.afterlines_to_code(MiniDoc.current.eval_section)
 ---@text Options ~
 ---
@@ -911,7 +890,7 @@ end
 --- Undo along a tracked linear history
 ---
 --- In a nutshell:
---- - Keys |u| and |<C-R>| (although remapped) can be used as usual, but every
+--- - Keys |u| and |CTRL-R| (although remapped) can be used as usual, but every
 ---   their execution new state is recorded in this module's linear undo history.
 --- - Advancing this target goes along linear undo history revealing undo states
 ---   **in order they actually appeared**.
@@ -930,10 +909,10 @@ end
 --- This `undo()` target provides a way to cycle through linear undo history
 --- **in order states actually appeared**. It does so by registering any new undo
 --- states plus every time |MiniBracketed.register_undo_state()| is called. To have
---- more "out of the box" experience, |u| and |<C-R>| are remapped to call it after
+--- more "out of the box" experience, |u| and |CTRL-R| are remapped to call it after
 --- they perform their undo/redo.
 ---
---- Example ~
+--- Example:
 ---
 --- To show more clearly the difference between advancing this target and using
 --- built-in functionality, here is an example:
@@ -1001,8 +980,8 @@ end
 --- Register state for undo target
 ---
 --- Use this function to add current undo state to this module's linear undo
---- history. It is used in |MiniBracketed.setup()| to remap |u| and |<C-R>| keys to add
---- their new state to linear undo history.
+--- history. It is used in |MiniBracketed.setup()| to remap |u| and |CTRL-R| keys
+--- to add their new state to linear undo history.
 MiniBracketed.register_undo_state = function()
   local buf_id = vim.api.nvim_get_current_buf()
   local tree = vim.fn.undotree()
@@ -1079,19 +1058,19 @@ end
 ---
 --- Direction "forward" goes to newer yank history entry, "backward" - to older.
 ---
---- Example ~
+--- Example:
 ---
 --- - Type `one two three`.
 --- - Yank each word with `yiw`.
 --- - Create new line and press `p`. This should paste `three`.
 --- - Type `[y`. This should replace latest `three` with `two`.
 ---
---- Latest put region ~
+--- # Latest put region ~
 ---
 --- "Latest put region" is (in order of decreasing priority):
 --- - The one from latest advance of this target.
 --- - The one registered by user with |MiniBracketed.register_put_region()|.
---- - The one taken from |`[| and |`]| marks.
+--- - The one taken from |'[| and |']| marks.
 ---
 --- For users there are these approaches to manage which region will be used:
 --- - Do nothing. In this case region between `[` / `]` marks will always be used
@@ -1168,7 +1147,7 @@ end
 ---
 --- This function should be called after put register becomes relevant
 --- (|v:register| is appropriately set) but before put operation takes place
---- (|`[| and |`]| marks become relevant).
+--- (|'[| and |']| marks become relevant).
 ---
 --- Designed to be used in a user-facing expression mapping (see |:map-expression|).
 --- For mapping examples see |MiniBracketed.yank()|.
